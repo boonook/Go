@@ -24,7 +24,14 @@ func init() {
 			beego.NSInclude(
 				&controllers.UserController{},
 			),
-		)
+		),
+		beego.NSNamespace("/api",
+			beego.NSNamespace("/user",
+				beego.NSInclude(
+					&controllers.UserController{},
+				),
+			),
+	    ),
 	)
 	beego.AddNamespace(ns)
 }
