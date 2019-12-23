@@ -1,7 +1,11 @@
 package models
 
 import (
+	"database/sql"
 	"errors"
+	"fmt"
+	"github.com/astaxie/beego"
+	_ "github.com/go-sql-driver/mysql"
 	"strconv"
 	"time"
 )
@@ -44,6 +48,28 @@ func GetUser(uid string) (u *User, err error) {
 }
 
 func GetAllUsers() map[string]*User {
+	db, err := sql.Open("mysql", "root:1234@tcp(127.0.0.1:3306)/ZHDJ?charset=utf8")
+	if err != nil {
+		beego.Error("连接数据库出错", err)
+		return nil
+	} else {
+		beego.Info("连接数据库成功")
+	}
+	rows, err := db.Query("select id,userName from user")
+	type UserInfo struct {
+		id       int
+		userName string
+	}
+	var u UserInfo
+	for rows.Next() {
+		err = rows.Scan(&u.id, &u.userName)
+		fmt.Println(u)
+	}
+	// 更新数据
+	_, err = db.Exec("update user set userName='pd' where id=17")
+
+	fmt.Println("testing...")
+	defer db.Close()
 	return UserList
 }
 
