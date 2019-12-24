@@ -40,11 +40,12 @@ func AddUser(u User) string {
 	return u.Id
 }
 
-func GetUser(uid string) (u *User, err error) {
-	if u, ok := UserList[uid]; ok {
-		return u, nil
-	}
-	return nil, errors.New("User not exists")
+func GetUser(uid string) string {
+	// if u, ok := UserList[uid]; ok {
+	// 	return u, nil
+	// }
+	// return nil, errors.New("User not exists")
+	return uid
 }
 
 func GetAllUsers() map[string]*User {
@@ -61,6 +62,7 @@ func GetAllUsers() map[string]*User {
 		userName string
 	}
 	var u UserInfo
+	fmt.Println("rows--------", rows)
 	for rows.Next() {
 		err = rows.Scan(&u.id, &u.userName)
 		fmt.Println(u)
