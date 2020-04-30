@@ -2,12 +2,16 @@ package main
 
 // 加下划线表明只调用init方法
 import (
+	_ "myAppApi/routers"
+
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/plugins/cors"
-	_ "myAppApi/routers"
 )
 
+var value int
+
 func main() {
+	////解决跨域请求
 	beego.InsertFilter("*", beego.BeforeRouter, cors.Allow(&cors.Options{
 		AllowAllOrigins:  true,
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},

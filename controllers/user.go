@@ -2,9 +2,9 @@ package controllers
 
 import (
 	"encoding/json"
-	"fmt"
-	"github.com/astaxie/beego"
 	"myAppApi/models"
+
+	"github.com/astaxie/beego"
 )
 
 // Operations about Users
@@ -38,7 +38,6 @@ func (u *UserController) Post() {
 // @Success 200 {object} models.User
 // @router / [get]
 func (u *UserController) GetAll() {
-	fmt.Println("123123123123")
 	users := models.GetAllUsers()
 	var JsonReturn JsonReturn
 	JsonReturn.Msg = "操作成功"

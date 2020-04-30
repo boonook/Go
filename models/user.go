@@ -4,10 +4,11 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"github.com/astaxie/beego"
-	_ "github.com/go-sql-driver/mysql"
 	"strconv"
 	"time"
+
+	"github.com/astaxie/beego"
+	_ "github.com/go-sql-driver/mysql"
 )
 
 var (
