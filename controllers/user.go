@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	"fmt"
 	"myAppApi/models"
 
 	"github.com/astaxie/beego"
@@ -56,13 +57,43 @@ func (u *UserController) GetAll() {
 // @router /:uid [get]
 func (u *UserController) Get() {
 	uid := u.GetString(":uid")
+	fmt.Println("uid----------------------------------", uid)
 	if uid != "" {
-		users := models.GetAllUsers()
-		var JsonReturn JsonReturn
-		JsonReturn.Msg = "操作成功2"
-		JsonReturn.Code = 200
-		JsonReturn.Data = users
-		u.Data["json"] = JsonReturn
+		// users := models.GetAllUsers()
+		// var JsonReturn JsonReturn
+		// JsonReturn.Msg = "操作成功2"
+		// JsonReturn.Code = 200
+		// JsonReturn.Data = users
+		type List struct {
+			Name  string
+			Age   int
+			count int
+		}
+
+		type Data struct {
+			page  string
+			size  int
+			count int
+			list  []List
+		}
+
+		type Ret struct {
+			Code int
+			Msg  string
+			Data interface{} `json:"data"` //	Data interface{} `json:"data"`//Data []Data
+		}
+
+		ret := new(Ret)
+		ret.Code = 200
+		ret.Msg = "success"
+		list2 := []List{
+			{Name: "a", Age: 1, count: 90},
+			{Name: "b", Age: 2, count: 80},
+			{Name: "c", Age: 3, count: 70},
+		}
+		data := Data{page: "why", size: 18, count: 31, list: list2}
+		ret.Data = data
+		u.Data["json"] = ret
 		u.ServeJSON()
 		return
 	}
@@ -126,6 +157,9 @@ func (u *UserController) Login() {
 // @Success 200 {string} logout success
 // @router /logout [get]
 func (u *UserController) Logout() {
-	u.Data["json"] = "logout success"
+	var JsonReturn JsonReturn
+	JsonReturn.Msg = "操作成功"
+	JsonReturn.Code = 200
+	u.Data["json"] = JsonReturn
 	u.ServeJSON()
 }

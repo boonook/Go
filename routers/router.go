@@ -20,6 +20,11 @@ func init() {
 				&controllers.MenuController{},
 			),
 		),
+		beego.NSNamespace("/object",
+			beego.NSInclude(
+				&controllers.ObjectController{},
+			),
+		),
 		beego.NSNamespace("/user",
 			beego.NSInclude(
 				&controllers.UserController{},

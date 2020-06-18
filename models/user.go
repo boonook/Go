@@ -7,18 +7,25 @@ import (
 	"strconv"
 	"time"
 
+	"myAppApi/models/mymysql"
+	"myAppApi/models/myredis"
+
 	"github.com/astaxie/beego"
+	"github.com/garyburd/redigo/redis"
 	_ "github.com/go-sql-driver/mysql"
 )
 
 var (
 	UserList map[string]*User
 )
+var (
+	UserListTable map[string]*UserListTableDetail
+)
 
 func init() {
 	UserList = make(map[string]*User)
 	u := User{"user_11111", "astaxie", "11111", Profile{"male", 20, "Singapore", "astaxie@gmail.com"}}
-	UserList["user_11111"] = &u
+	UserList["list"] = &u
 }
 
 type User struct {
@@ -35,6 +42,12 @@ type Profile struct {
 	Email   string
 }
 
+type UserListTableDetail struct {
+	id        string `db:"id"`
+	userName  string `db:"userName"`
+	userEmail string `db:"userEmail"`
+}
+
 func AddUser(u User) string {
 	u.Id = "user_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	UserList[u.Id] = &u
@@ -49,30 +62,53 @@ func GetUser(uid string) string {
 	return uid
 }
 
+type UserLists struct {
+	Id        int
+	Username  string
+	Password  string
+	userEmail string
+}
+
 func GetAllUsers() map[string]*User {
-	db, err := sql.Open("mysql", "root:1234@tcp(127.0.0.1:3306)/ZHDJ?charset=utf8")
+	db := mymysql.Conn()
+	rows, err := db.Query("select * from user")
 	if err != nil {
-		beego.Error("连接数据库出错", err)
+		beego.Error("操作出错", err)
 		return nil
-	} else {
-		beego.Info("连接数据库成功")
 	}
-	rows, err := db.Query("select id,userName from user")
+	columns, err_1 := rows.Columns()
+	if err_1 != nil {
+		panic(err_1.Error())
+	}
+	values := make([]sql.RawBytes, len(columns))
+	fmt.Println("values------------------------------------------------", values)
+	conn := myredis.Conn()
+	_, err1 := conn.Do("SET", "ceshi", "123456789")
+	// 设置redis
+	if err1 != nil {
+		beego.Error("MULTI HINCRBY for new user registeration:", err1)
+		return nil
+	}
+	// 获取redis中的值
+	C, err2 := redis.String(conn.Do("GET", "AUTH"))
+	if err2 != nil {
+		beego.Error("MULTI HINCRBY for new user registeration:", err2)
+		return nil
+	}
+	fmt.Println("redis------------------------------------------------", C)
 	type UserInfo struct {
-		id       int
-		userName string
+		id        int    `db:"id"`
+		userName  string `db:"userName"`
+		userEmail string `db:"userEmail"`
 	}
 	var u UserInfo
 	fmt.Println("rows--------", rows)
 	for rows.Next() {
-		err = rows.Scan(&u.id, &u.userName)
-		fmt.Println(u)
+		err = rows.Scan(&u.id, &u.userName, &u.userEmail)
+		// fmt.Println("ceshi", u)
 	}
 	// 更新数据
 	_, err = db.Exec("update user set userName='pd' where id=17")
-
-	fmt.Println("testing...")
-	defer db.Close()
 	return UserList
 }
 
