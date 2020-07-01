@@ -24,7 +24,7 @@ var (
 
 func init() {
 	UserList = make(map[string]*User)
-	u := User{"user_11111", "astaxie", "11111", Profile{"male", 20, "Singapore", "astaxie@gmail.com"}}
+	u := User{"user_11111---------", "astaxie", "11111", Profile{"male", 20, "Singapore", "astaxie@gmail.com"}}
 	UserList["list"] = &u
 }
 
@@ -95,6 +95,8 @@ func GetAllUsers() map[string]*User {
 		beego.Error("MULTI HINCRBY for new user registeration:", err2)
 		return nil
 	}
+	///用完后将连接放回连接池
+	defer conn.Close()
 	fmt.Println("redis------------------------------------------------", C)
 	type UserInfo struct {
 		id        int    `db:"id"`

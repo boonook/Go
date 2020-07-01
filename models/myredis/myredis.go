@@ -10,20 +10,14 @@ import (
 
 var pool *redis.Pool
 
-// Conn return redis connection.
 func Conn() redis.Conn {
+	////新建连接
 	return pool.Get()
 }
-
-/*
-func Close() {
-	pool.Close()
-}
-*/
-
 func newPool(server, password string) *redis.Pool {
 	return &redis.Pool{
-		MaxIdle:     3,
+		MaxIdle:     80,
+		MaxActive:   12000, // max number of connections
 		IdleTimeout: 240 * time.Second,
 		Dial: func() (redis.Conn, error) {
 			c, err := redis.Dial("tcp", server)
@@ -48,7 +42,6 @@ func newPool(server, password string) *redis.Pool {
 		},
 	}
 }
-
 func init() {
 	server := beego.AppConfig.String("cache::server")
 	password := beego.AppConfig.String("cache::password")
