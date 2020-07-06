@@ -18,9 +18,13 @@ go mod init
 # conf 配置文件  
 # 开启swapper
 
+```bash
 bee run -gendoc=true -downdoc=true
+```
 
+```bash
 http://localhost:8282/swagger/
+```
 
 #调用封装的go函数
 

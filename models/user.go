@@ -1,7 +1,6 @@
 package models
 
 import (
-	"database/sql"
 	"errors"
 	"fmt"
 	"strconv"
@@ -62,26 +61,41 @@ func GetUser(uid string) string {
 	return uid
 }
 
-type UserLists struct {
-	Id        int
-	Username  string
-	Password  string
-	userEmail string
+type UserDetail struct {
+	Id        int    `db:"id"`
+	Age       int    `db:"age"`
+	UserName  string `db:"userName"`
+	UserEmail string `db:"userEmail"`
 }
 
 func GetAllUsers() map[string]*User {
 	db := mymysql.Conn()
-	rows, err := db.Query("select * from user")
+	rows, err := db.Query("select id,age,userName,userEmail from `user`")
+	///获取完毕释放rows，阻止更多的列举
+ 	defer rows.Close()
 	if err != nil {
 		beego.Error("操作出错", err)
 		return nil
 	}
-	columns, err_1 := rows.Columns()
-	if err_1 != nil {
-		panic(err_1.Error())
+	/**获取表头开始***/
+	cols, _ := rows.Columns()
+	for i := range cols {
+		fmt.Print(cols[i])
+		fmt.Print("\t")
 	}
-	values := make([]sql.RawBytes, len(columns))
-	fmt.Println("values------------------------------------------------", values)
+	/**获取表头结束***/
+	/***遍历列表中的数据start***/
+	/// 通过切片存储
+	users := make([]UserDetail, 0)
+	for rows.Next() {
+		var user UserDetail
+		rows.Scan(&user.Id, &user.UserName, &user.Age, &user.UserEmail)
+		fmt.Println(user)
+		users = append(users, user)
+	}
+	/***遍历列表中的数据end***/
+	fmt.Println("users:", users)
+
 	conn := myredis.Conn()
 	_, err1 := conn.Do("SET", "ceshi", "123456789")
 	// 设置redis
@@ -98,7 +112,7 @@ func GetAllUsers() map[string]*User {
 	///用完后将连接放回连接池
 	defer conn.Close()
 	fmt.Println("redis------------------------------------------------", C)
-	type UserInfo struct {
+	/**type UserInfo struct {
 		id        int    `db:"id"`
 		userName  string `db:"userName"`
 		userEmail string `db:"userEmail"`
@@ -111,6 +125,7 @@ func GetAllUsers() map[string]*User {
 	}
 	// 更新数据
 	_, err = db.Exec("update user set userName='pd' where id=17")
+	return UserList**/
 	return UserList
 }
 
